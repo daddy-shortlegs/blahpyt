@@ -1,0 +1,95 @@
+#MySQL-Python Connectivity
+# Question 1
+import mysql.connector
+def connect_to_database():
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="uttu",
+            database="menagerie"
+        )
+        return conn
+    except mysql.connector.Error as e:
+        print(f"Error connecting to the database: {e}")
+        return None
+
+# Function to insert a new record into the ITEM table
+def insert_record(conn):
+    try:
+        cursor = conn.cursor()
+        itemcode = input("Enter Item Code: ")
+        itemname = input("Enter Item Name: ")
+        price = float(input("Enter Price: "))
+
+        query = "INSERT INTO ITEM (Itemcode, Itemname, Price) VALUES (%s, %s, %s)"
+        cursor.execute(query, (itemcode, itemname, price))
+        conn.commit()
+        print("Record inserted successfully!")
+    except Exception as e:
+        print(f"Error inserting record: {e}")
+
+# Function to display all records from the ITEM table
+def display_records(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM ITEM")
+        records = cursor.fetchall()
+
+        if len(records) == 0:
+            print("No records found in the ITEM table.")
+        else:
+            print("Itemcode\tItemname\tPrice")
+            for record in records:
+                print(f"{record[0]}\t{record[1]}\t{record[2]}")
+    except Exception as e:
+        print(f"Error displaying records: {e}")
+
+# Function to search for a record based on Itemcode
+def search_by_itemcode(conn):
+    try:
+        cursor = conn.cursor()
+        itemcode = input("Enter Item Code to search: ")
+
+        query = "SELECT * FROM ITEM WHERE Itemcode = %s"
+        cursor.execute(query, (itemcode,))
+        record = cursor.fetchone()
+
+        if record:
+            print("Itemcode\tItemname\tPrice")
+            print(f"{record[0]}\t{record[1]}\t{record[2]}")
+        else:
+            print("No record found with the specified Item Code.")
+    except Exception as e:
+        print(f"Error searching for record: {e}")
+
+# Main menu
+def main():
+    conn = connect_to_database()
+    if not conn:
+        return
+
+    while True:
+        print("\nMenu:")
+        print("1. Insert a Record")
+        print("2. Display All Records")
+        print("3. Search by Itemcode")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            insert_record(conn)
+        elif choice == "2":
+            display_records(conn)
+        elif choice == "3":
+            search_by_itemcode(conn)
+        elif choice == "4":
+            conn.close()
+            print("Exiting program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
+
